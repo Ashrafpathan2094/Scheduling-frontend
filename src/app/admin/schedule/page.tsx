@@ -27,7 +27,8 @@ const Schedule = () => {
       cell: (info) => (
         <div className="flex items-center">
           <div className="mr-3 text-sm font-bold text-navy-700 dark:text-white">
-            {info.row.index + 1} . {info.row.original.instructorDetails[0].name}
+            {info.row.index + 1} .{' '}
+            {info.row.original?.instructorDetails[0]?.name}
           </div>
         </div>
       ),
@@ -54,7 +55,7 @@ const Schedule = () => {
       ),
       cell: (info) => (
         <p className="text-sm font-bold text-navy-700 dark:text-white">
-          {info.row.original.batchDetails[0].batchName}
+          {info.row.original?.batchDetails[0]?.batchName}
         </p>
       ),
     }),
@@ -78,6 +79,7 @@ const Schedule = () => {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}scheduling`,
         );
+
         if (response.ok) {
           const data = await response.json();
           console.log('🚀 ~ fetchSchedules ~ data:', data);
@@ -99,7 +101,12 @@ const Schedule = () => {
   return (
     <div className="relative">
       {loading && <FullScreenLoader />}
-      {isModalOpen && <AddSchedule setIsModelClose={setIsModalOpen} />}
+      {isModalOpen && (
+        <AddSchedule
+          setIsModelClose={setIsModalOpen}
+          setSchedulesData={setSchedulesData}
+        />
+      )}
       <div className="flex w-full p-4">
         <div className="flex w-1/2"></div>
         <div className="flex w-1/2 flex-row-reverse">

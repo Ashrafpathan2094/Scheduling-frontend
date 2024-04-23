@@ -9,44 +9,62 @@ import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
-const AddSchedule = ({ setIsModelClose }) => {
+const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
   const [isLoading, setIsLoading] = useState(false);
-
+  const [coursesData, setCoursesData] = useState<any>([]);
+  const [courseId, setCourseId] = useState<any>('');
   const [showCalendar, setShowCalendar] = useState(false);
-  const [value, onChange] = useState(new Date());
-  console.log('🚀 ~ AddSchedule ~ value:', value);
+  const [batchData, setBatchData] = useState<any>([]);
+  const [tableData, setTableData] = useState<any>([]);
+  const [selectedDate, setSelectedDate] = useState('');
 
-  const [allCourses, setAllCourses] = useState([
-    { label: 'testing course', value: '123123123' },
-    { label: 'testing course 1', value: '123123123' },
-    { label: 'testing course 1', value: '123123123' },
-  ]);
+  const [value, setValue] = useState(new Date());
 
-  const validationSchema = Yup.object({
-    name: Yup.string()
-      .min(3, 'Name should be at least 3 characters')
-      .max(20, 'Name should be at most 20 characters')
-      .required('Name is required'),
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
-  });
-
-  const handleSelect = (ranges: any) => {
-    console.log('ranges', ranges);
+  const handleCourseChange = (event) => {
+    setCourseId(event.target.value);
+    formik.setFieldValue('courseId', event.target.value);
   };
 
+  const handleBatchChange = (event) => {
+    formik.setFieldValue('batchId', event.target.value);
+  };
+
+  const handleLecturerChange = (event) => {
+    formik.setFieldValue('instructorId', event.target.value);
+  };
+
+  const validationSchema = Yup.object({
+    date: Yup.string().required('Name is required'),
+    courseId: Yup.string().required('Name is required'),
+    batchId: Yup.string().required('Name is required'),
+    instructorId: Yup.string().required('Name is required'),
+  });
+
+  const handleSelect = (range: any) => {
+    setValue(range);
+    const selectedDate = new Date(range);
+    const formattedDate = selectedDate
+      .toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+      .replace(/\//g, '-');
+    setSelectedDate(formattedDate);
+  };
   const formik = useFormik({
     initialValues: {
-      name: '',
-      email: '',
+      date: '',
+      courseId: '',
+      batchId: '',
+      instructorId: '',
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-job-application`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}scheduling`,
           {
             method: 'POST',
             headers: {
@@ -55,20 +73,24 @@ const AddSchedule = ({ setIsModelClose }) => {
             body: JSON.stringify(values),
           },
         );
-
+        console.log('response', response);
         if (response.ok) {
-          console.log('Job application submitted successfully!');
-          toast.success('Lecturer Created');
+          const newSchedule = await response.json();
+          if (newSchedule?.code == '201') {
+            toast.error(newSchedule?.message);
+            return;
+          }
+          setSchedulesData((prevTableData) => [newSchedule, ...prevTableData]);
+          console.log('Schedule Added!');
+          toast.success('Schedule Added');
           setIsModelClose(false);
         } else {
-          console.error('Failed to create the lecturer');
-          toast.error('Failed to create the lecturer');
-
-          // Handle error if needed
+          console.error('Failed to Add a Schedule');
+          toast.error('Failed to Add a Schedule');
         }
       } catch (error) {
-        console.error('Failed to create the lecturer:', error);
-        toast.error('Failed to create the lecturer');
+        console.error('Failed to Add a Schedule:', error);
+        toast.error('Failed to Add a Schedule');
 
         // Handle error if needed
       } finally {
@@ -81,6 +103,95 @@ const AddSchedule = ({ setIsModelClose }) => {
     setIsModelClose(false);
   };
 
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}courses`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setCoursesData(data);
+        } else {
+          console.error('Failed to get the lecturers');
+          toast.error('Failed to get the lecturers');
+        }
+      } catch (error) {
+        console.error('Failed to get the lecturers:', error);
+        toast.error('Failed to get the lecturers');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}batches/findAll`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ courseId: courseId }),
+          },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setBatchData(data?.batchList);
+        } else {
+          console.error('Failed to get the lecturers');
+          toast.error('Failed to get the lecturers');
+        }
+      } catch (error) {
+        console.error('Failed to get the lecturers:', error);
+        toast.error('Failed to get the lecturers');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (courseId) {
+      fetchBatches();
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}lecturer`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setTableData(data);
+        } else {
+          console.error('Failed to get the lecturers');
+          toast.error('Failed to get the lecturers');
+        }
+      } catch (error) {
+        console.error('Failed to get the lecturers:', error);
+        toast.error('Failed to get the lecturers');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+  console.log('formik.values', formik.values);
+
+  const handleOkClick = () => {
+    formik.setFieldValue('date', selectedDate);
+    setShowCalendar(false);
+  };
   return (
     <div
       className={`absolute top-0 z-[60] flex min-h-[100vh] w-[100%] items-center justify-center bg-[rgba(0,0,0,0.25)]`}
@@ -107,50 +218,88 @@ const AddSchedule = ({ setIsModelClose }) => {
                   className="relative flex items-start justify-start gap-5 "
                 >
                   Select Date <FaCalendarAlt />
-                  {showCalendar && (
-                    <div className="absolute left-[30%] top-0 ml-[20rem] mt-5 w-[15rem]">
-                      <Calendar
-                        onChange={handleSelect}
-                        value={value}
-                        prevLabel={<MdChevronLeft className="ml-1 h-6 w-6 " />}
-                        nextLabel={<MdChevronRight className="ml-1 h-6 w-6 " />}
-                        view={'month'}
-                      />
-                      <div className="mt-5 flex items-center justify-end gap-10">
-                        <button
-                          onClick={() => setShowCalendar(false)}
-                          className={`flex h-[2.5rem] w-[6.5rem] items-center justify-center rounded-lg bg-[#fff] text-lg font-semibold text-[#008BD2]`}
-                        >
-                          cancel
-                        </button>
-                        <button
-                          className={`flex h-[2.5rem] w-[6.5rem] items-center justify-center rounded-lg bg-[#008BD2] text-lg font-semibold text-[#fff]`}
-                        >
-                          Ok
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
-
-                {/* <div>
-                  <label htmlFor="dropdown">Select an option:</label>
+                {showCalendar && (
+                  <div className="my-10 w-[15rem]">
+                    <Calendar
+                      onChange={handleSelect}
+                      value={value}
+                      prevLabel={<MdChevronLeft className="ml-1 h-6 w-6 " />}
+                      nextLabel={<MdChevronRight className="ml-1 h-6 w-6 " />}
+                      view={'month'}
+                    />
+                    <div className="mt-5 flex items-center justify-end gap-10">
+                      <button
+                        onClick={() => setShowCalendar(false)}
+                        className={`flex h-[2.5rem] w-[6.5rem] items-center justify-center rounded-lg bg-[#fff] text-lg font-semibold text-[#008BD2]`}
+                      >
+                        cancel
+                      </button>
+                      <button
+                        onClick={handleOkClick}
+                        className={`flex h-[2.5rem] w-[6.5rem] items-center justify-center rounded-lg bg-[#008BD2] text-lg font-semibold text-[#fff]`}
+                      >
+                        Ok
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="my-4">
+                  <label htmlFor="Course" className="text-base font-bold">
+                    Select an Course:
+                  </label>
                   <select
-                    id="dropdown"
-                    value={selectedOption}
-                    onChange={handleSelectChange}
+                    id="Course"
+                    value={formik.values.courseId}
+                    onChange={handleCourseChange}
+                    className="mx-4 w-[50%] text-base "
                   >
-                    <option value="">Select...</option>
-                    {options.map((option, index) => (
-                      <option key={index} value={option}>
-                        {option}
+                    {coursesData.map((option, index) => (
+                      <option
+                        key={index}
+                        value={option?._id}
+                        className="text-base "
+                      >
+                        {option?.name}
                       </option>
                     ))}
                   </select>
-                </div> */}
+                </div>
+                <div className="my-4">
+                  <label htmlFor="batch" className="text-base font-bold">
+                    Select an Batch:
+                  </label>
+                  <select
+                    id="batch"
+                    value={formik.values.batchId}
+                    onChange={handleBatchChange}
+                    className="text-base "
+                  >
+                    {batchData.map((option, index) => (
+                      <option key={index} value={option?._id}>
+                        {option?.batchName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="my-4">
+                  <label htmlFor="Lecturer" className="text-base font-bold">
+                    Select an Lecturer:
+                  </label>
+                  <select
+                    id="Lecturer"
+                    value={formik.values.instructorId}
+                    onChange={handleLecturerChange}
+                    className="text-base "
+                  >
+                    {tableData.map((option, index) => (
+                      <option key={index} value={option?._id}>
+                        {option?.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-
-              <div></div>
               <div className="mt-5 flex w-full items-center justify-end gap-2">
                 <button
                   type="submit"

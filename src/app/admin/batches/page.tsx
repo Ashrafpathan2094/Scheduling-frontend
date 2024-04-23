@@ -51,7 +51,7 @@ const Batches = () => {
   ];
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchBatches = async () => {
       try {
         setLoading(true);
         const response = await fetch(
@@ -79,7 +79,7 @@ const Batches = () => {
       }
     };
 
-    fetchCourses();
+    fetchBatches();
   }, [id]);
   return (
     <div className="relative">
