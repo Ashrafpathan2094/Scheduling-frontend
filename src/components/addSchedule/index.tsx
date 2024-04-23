@@ -1,3 +1,6 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import Card from 'components/card';
 import FullScreenLoader from 'components/fullscreenLoader';
 import { useFormik } from 'formik';
@@ -9,7 +12,14 @@ import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
-const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
+const AddSchedule = ({
+  setIsModelClose,
+  setSchedulesData,
+  setRefresh,
+  refresh,
+}) => {
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
   const [coursesData, setCoursesData] = useState<any>([]);
   const [courseId, setCourseId] = useState<any>('');
@@ -80,10 +90,10 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
             toast.error(newSchedule?.message);
             return;
           }
-          setSchedulesData((prevTableData) => [newSchedule, ...prevTableData]);
           console.log('Schedule Added!');
           toast.success('Schedule Added');
           setIsModelClose(false);
+          setRefresh(!refresh);
         } else {
           console.error('Failed to Add a Schedule');
           toast.error('Failed to Add a Schedule');
@@ -112,6 +122,10 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
         );
         if (response.ok) {
           const data = await response.json();
+          if (data.length > 0) {
+            setCourseId(data[0]?._id);
+            formik.setFieldValue('courseId', data[0]?._id);
+          }
           setCoursesData(data);
         } else {
           console.error('Failed to get the courses');

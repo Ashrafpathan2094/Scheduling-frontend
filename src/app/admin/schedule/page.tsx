@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 const Schedule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [schedules, setSchedulesData] = useState<any>([]);
+  const [refresh, setRefresh] = useState(false);
 
   const columnHelper = createColumnHelper<any>();
   const [loading, setLoading] = useState(false);
@@ -97,7 +98,7 @@ const Schedule = () => {
     };
 
     fetchSchedules();
-  }, []);
+  }, [refresh]);
   return (
     <div className="relative">
       {loading && <FullScreenLoader />}
@@ -105,6 +106,8 @@ const Schedule = () => {
         <AddSchedule
           setIsModelClose={setIsModalOpen}
           setSchedulesData={setSchedulesData}
+          setRefresh={setRefresh}
+          refresh={refresh}
         />
       )}
       <div className="flex w-full p-4">
