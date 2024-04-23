@@ -1,12 +1,17 @@
+import Card from 'components/card';
 import FullScreenLoader from 'components/fullscreenLoader';
 import { useFormik } from 'formik';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { Calendar } from 'react-calendar';
+import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 const AddSchedule = ({ setIsModelClose }) => {
   const [isLoading, setIsLoading] = useState(false);
+
+  const [value, onChange] = useState(new Date());
 
   const [allCourses, setAllCourses] = useState([
     { label: 'testing course', value: '123123123' },
@@ -93,40 +98,15 @@ const AddSchedule = ({ setIsModelClose }) => {
                 className={`flex h-[17rem] flex-col items-center justify-center`}
               >
                 <>
-                  <div className="my-3 flex w-[100%] flex-col items-start justify-center">
-                    <label
-                      htmlFor="name"
-                      className="mb-2 text-base font-medium text-[#192734]"
-                    >
-                      Name
-                    </label>
-                    <input
-                      className={`mt-2 w-full rounded-[0.5rem]  border-[#8D8D8D] bg-[#F9FAFA]  p-2 text-gray-700 transition-all duration-300 focus:border-[#000]`}
-                      type="text"
-                      id="name"
-                      {...formik.getFieldProps('name')}
+                  <Card extra="flex w-full h-full flex-col px-3 py-3">
+                    <Calendar
+                      onChange={onChange}
+                      value={value}
+                      prevLabel={<MdChevronLeft className="ml-1 h-6 w-6 " />}
+                      nextLabel={<MdChevronRight className="ml-1 h-6 w-6 " />}
+                      view={'month'}
                     />
-                    {formik.touched.name && formik.errors.name ? (
-                      <div className="text-red-500">{formik.errors.name}</div>
-                    ) : null}
-                  </div>
-                  <div className="my-3 flex w-[100%] flex-col items-start justify-center">
-                    <label
-                      htmlFor="email"
-                      className="mb-2 text-base font-medium text-[#192734]"
-                    >
-                      Email
-                    </label>
-                    <input
-                      className={` mt-2 w-full rounded-[0.5rem]  border-[#8D8D8D] bg-[#F9FAFA]  p-2 text-gray-700 transition-all duration-300 focus:border-[#000]`}
-                      type="email"
-                      id="email"
-                      {...formik.getFieldProps('email')}
-                    />
-                    {formik.touched.email && formik.errors.email ? (
-                      <div className="text-red-500">{formik.errors.email}</div>
-                    ) : null}
-                  </div>
+                  </Card>
                 </>
               </div>
               <div className="mt-5 flex w-full items-center justify-end gap-2">

@@ -3,6 +3,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import AddCourses from 'components/addCourses';
 import AddSchedule from 'components/addSchedule';
 import DataTable from 'components/dataTable/dataTable';
+import FullScreenLoader from 'components/fullscreenLoader';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -81,7 +82,6 @@ const Schedule = () => {
     }),
   ];
 
-  // useEffect(() => {
   //   const fetchUsers = async () => {
 
   //     const response = await fetch(
@@ -118,6 +118,7 @@ const Schedule = () => {
   // }, []);
   return (
     <div className="relative">
+      {loading && <FullScreenLoader />}
       {isModalOpen && <AddSchedule setIsModelClose={setIsModalOpen} />}
       <div className="flex w-full p-4">
         <div className="flex w-1/2"></div>

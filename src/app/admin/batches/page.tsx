@@ -3,25 +3,25 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import AddBatches from 'components/addBatches';
 import DataTable from 'components/dataTable/dataTable';
+import FullScreenLoader from 'components/fullscreenLoader';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 const Batches = () => {
   const searchParams = useSearchParams();
 
   const id = searchParams.get('id');
+  const name = searchParams.get('name');
 
-  const [tableData, setTableData] = useState<any>({
-    lecturers: [{ name: 'ashraf', timings: '12 - 2' }],
-    totalCount: 15,
-  });
+  const [batchData, setBatchData] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const columnHelper = createColumnHelper<any>();
   const [loading, setLoading] = useState(false);
 
+  const columnHelper = createColumnHelper<any>();
+
   const columns: any = [
-    columnHelper.accessor('name', {
-      id: 'name',
+    columnHelper.accessor('batchName', {
+      id: 'batchName',
       header: () => (
         <p className="text-sm font-bold text-[#B1A2D0] dark:text-white">
           Batch Name
@@ -44,16 +44,57 @@ const Batches = () => {
       ),
       cell: (info) => (
         <p className="text-sm font-bold text-navy-700 dark:text-white">
-          {info.getValue()}
+          {info.row.original.start} - {info.row.original.end}
         </p>
       ),
     }),
   ];
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}batches/findAll`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ courseId: id }),
+          },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setBatchData(data?.batchList);
+        } else {
+          console.error('Failed to get the lecturers');
+          toast.error('Failed to get the lecturers');
+        }
+      } catch (error) {
+        console.error('Failed to get the lecturers:', error);
+        toast.error('Failed to get the lecturers');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, [id]);
   return (
     <div className="relative">
-      {isModalOpen && <AddBatches setIsModelClose={setIsModalOpen} />}
+      {loading && <FullScreenLoader />}
+      {isModalOpen && (
+        <AddBatches
+          setIsModelClose={setIsModalOpen}
+          id={id}
+          setBatchData={setBatchData}
+        />
+      )}
       <div className="flex w-full p-4">
-        <div className="flex w-1/2"></div>
+        <div className="flex w-1/2 text-4xl font-extrabold">
+          Course : {name}
+        </div>
         <div className="flex w-1/2 flex-row-reverse">
           <div>
             <div
@@ -66,11 +107,11 @@ const Batches = () => {
         </div>
       </div>
       <div>
-        {tableData?.lecturers && tableData?.lecturers.length > 0 ? (
-          <DataTable columns={columns} tableData={tableData?.lecturers} />
+        {batchData && batchData.length > 0 ? (
+          <DataTable columns={columns} tableData={batchData} />
         ) : (
           <div className="flex min-h-[80vh] items-center justify-center text-4xl	font-bold	">
-            {!loading ? 'No Users Found' : ''}
+            {!loading ? 'No Batches found Found' : ''}
           </div>
         )}
       </div>

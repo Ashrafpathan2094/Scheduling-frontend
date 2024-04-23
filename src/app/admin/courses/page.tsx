@@ -2,6 +2,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import AddCourses from 'components/addCourses';
 import DataTable from 'components/dataTable/dataTable';
+import FullScreenLoader from 'components/fullscreenLoader';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -84,7 +85,11 @@ const Courses = () => {
       ),
       cell: (info) => (
         <p className="text-sm font-bold text-navy-700 dark:text-white">
-          <a href={`/admin/batches?id=${info.getValue()}`}>
+          <a
+            href={`/admin/batches?id=${info.getValue()}&name=${
+              info.row.original.name
+            }`}
+          >
             <Image
               src={`/img/eye-icon.png`}
               height={20}
@@ -124,6 +129,7 @@ const Courses = () => {
   }, []);
   return (
     <div className="relative">
+      {loading && <FullScreenLoader />}
       {isModalOpen && (
         <AddCourses
           setIsModelClose={setIsModalOpen}

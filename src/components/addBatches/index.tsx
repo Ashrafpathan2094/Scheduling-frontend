@@ -7,11 +7,11 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
-const AddBatches = ({ setIsModelClose }) => {
+const AddBatches = ({ setIsModelClose, id, setBatchData }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const validationSchema = Yup.object({
-    name: Yup.string()
+    batchName: Yup.string()
       .min(3, 'Name should be at least 3 characters')
       .max(20, 'Name should be at most 20 characters')
       .required('Name is required'),
@@ -19,7 +19,7 @@ const AddBatches = ({ setIsModelClose }) => {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
+      batchName: '',
       timings: ['00:00', '00:00'],
     },
     validationSchema: validationSchema,
@@ -27,19 +27,27 @@ const AddBatches = ({ setIsModelClose }) => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-job-application`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}batches`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(values),
+            body: JSON.stringify({
+              batchName: values.batchName,
+              start: values.timings[0],
+              end: values.timings[1],
+              courseId: id,
+            }),
           },
         );
 
         if (response.ok) {
+          const newBatch = await response.json();
           console.log('Job application submitted successfully!');
           toast.success('Lecturer Created');
+          setBatchData((prevTableData) => [newBatch, ...prevTableData]);
+
           setIsModelClose(false);
         } else {
           console.error('Failed to create the lecturer');
@@ -88,7 +96,7 @@ const AddBatches = ({ setIsModelClose }) => {
                 <>
                   <div className="my-3 flex w-[100%] flex-col items-start justify-center">
                     <label
-                      htmlFor="name"
+                      htmlFor="batchName"
                       className="mb-2 text-base font-medium text-[#192734]"
                     >
                       Name
@@ -96,13 +104,15 @@ const AddBatches = ({ setIsModelClose }) => {
                     <input
                       className={`mt-2 w-[50%] rounded-[0.5rem]  border-[#8D8D8D] bg-[#F9FAFA]  p-2 text-gray-700 transition-all duration-300 focus:border-[#000]`}
                       type="text"
-                      id="name"
+                      id="batchName"
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      value={formik.values.name}
+                      value={formik.values.batchName}
                     />
-                    {formik.touched.name && formik.errors.name ? (
-                      <div className="text-red-500">{formik.errors.name}</div>
+                    {formik.touched.batchName && formik.errors.batchName ? (
+                      <div className="text-red-500">
+                        {formik.errors.batchName}
+                      </div>
                     ) : null}
                   </div>
                   <div className="my-3 flex w-[100%] flex-col items-start justify-center">
