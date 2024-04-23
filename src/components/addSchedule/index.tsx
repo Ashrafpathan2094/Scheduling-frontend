@@ -34,10 +34,10 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
   };
 
   const validationSchema = Yup.object({
-    date: Yup.string().required('Name is required'),
-    courseId: Yup.string().required('Name is required'),
-    batchId: Yup.string().required('Name is required'),
-    instructorId: Yup.string().required('Name is required'),
+    date: Yup.string().required('date is required'),
+    courseId: Yup.string().required('Course is required'),
+    batchId: Yup.string().required('Batch is required'),
+    instructorId: Yup.string().required('Lecturer is required'),
   });
 
   const handleSelect = (range: any) => {
@@ -145,6 +145,9 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
         if (response.ok) {
           const data = await response.json();
           setBatchData(data?.batchList);
+          if (data?.batchList.length > 0) {
+            formik.setFieldValue('batchId', data?.batchList[0]?._id);
+          }
         } else {
           console.error('Failed to get the lecturers');
           toast.error('Failed to get the lecturers');
@@ -172,6 +175,9 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
         if (response.ok) {
           const data = await response.json();
           setTableData(data);
+          if (data.length > 0) {
+            formik.setFieldValue('instructorId', data[0]?._id);
+          }
         } else {
           console.error('Failed to get the lecturers');
           toast.error('Failed to get the lecturers');
@@ -219,6 +225,9 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
                 >
                   Select Date <FaCalendarAlt />
                 </div>
+                {formik.touched.date && formik.errors.date ? (
+                  <div className="text-red-500">{formik.errors.date}</div>
+                ) : null}
                 {showCalendar && (
                   <div className="my-10 w-[15rem]">
                     <Calendar
@@ -264,6 +273,9 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
                       </option>
                     ))}
                   </select>
+                  {formik.touched.courseId && formik.errors.courseId ? (
+                    <div className="text-red-500">{formik.errors.courseId}</div>
+                  ) : null}
                 </div>
                 <div className="my-4">
                   <label htmlFor="batch" className="text-base font-bold">
@@ -281,6 +293,9 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
                       </option>
                     ))}
                   </select>
+                  {formik.touched.batchId && formik.errors.batchId ? (
+                    <div className="text-red-500">{formik.errors.batchId}</div>
+                  ) : null}
                 </div>
                 <div className="my-4">
                   <label htmlFor="Lecturer" className="text-base font-bold">
@@ -298,6 +313,11 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
                       </option>
                     ))}
                   </select>
+                  {formik.touched.instructorId && formik.errors.instructorId ? (
+                    <div className="text-red-500">
+                      {formik.errors.instructorId}
+                    </div>
+                  ) : null}
                 </div>
               </div>
               <div className="mt-5 flex w-full items-center justify-end gap-2">
