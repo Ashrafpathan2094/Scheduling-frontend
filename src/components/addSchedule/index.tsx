@@ -114,12 +114,12 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
           const data = await response.json();
           setCoursesData(data);
         } else {
-          console.error('Failed to get the lecturers');
-          toast.error('Failed to get the lecturers');
+          console.error('Failed to get the courses');
+          toast.error('Failed to get the courses');
         }
       } catch (error) {
-        console.error('Failed to get the lecturers:', error);
-        toast.error('Failed to get the lecturers');
+        console.error('Failed to get the courses:', error);
+        toast.error('Failed to get the courses');
       } finally {
         setIsLoading(false);
       }
@@ -149,12 +149,12 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
             formik.setFieldValue('batchId', data?.batchList[0]?._id);
           }
         } else {
-          console.error('Failed to get the lecturers');
-          toast.error('Failed to get the lecturers');
+          console.error('Failed to get the batch');
+          toast.error('Failed to get the batch');
         }
       } catch (error) {
-        console.error('Failed to get the lecturers:', error);
-        toast.error('Failed to get the lecturers');
+        console.error('Failed to get the batch:', error);
+        toast.error('Failed to get the batch');
       } finally {
         setIsLoading(false);
       }
@@ -163,7 +163,7 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
     if (courseId) {
       fetchBatches();
     }
-  }, [courseId]);
+  }, [courseId, formik]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -191,7 +191,7 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
     };
 
     fetchUsers();
-  }, []);
+  }, [formik]);
   console.log('formik.values', formik.values);
 
   const handleOkClick = () => {

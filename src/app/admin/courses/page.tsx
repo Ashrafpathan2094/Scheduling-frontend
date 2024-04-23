@@ -114,12 +114,12 @@ const Courses = () => {
           console.log('🚀 ~ fetchCourses ~ data:', data);
           setCoursesData(data);
         } else {
-          console.error('Failed to get the lecturers');
-          toast.error('Failed to get the lecturers');
+          console.error('Failed to get the courses');
+          toast.error('Failed to get the courses');
         }
       } catch (error) {
-        console.error('Failed to get the lecturers:', error);
-        toast.error('Failed to get the lecturers');
+        console.error('Failed to get the courses:', error);
+        toast.error('Failed to get the courses');
       } finally {
         setLoading(false);
       }

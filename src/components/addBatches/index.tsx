@@ -45,19 +45,19 @@ const AddBatches = ({ setIsModelClose, id, setBatchData }) => {
         if (response.ok) {
           const newBatch = await response.json();
           console.log('Job application submitted successfully!');
-          toast.success('Lecturer Created');
+          toast.success('Batch Created');
           setBatchData((prevTableData) => [newBatch, ...prevTableData]);
 
           setIsModelClose(false);
         } else {
-          console.error('Failed to create the lecturer');
-          toast.error('Failed to create the lecturer');
+          console.error('Failed to create the Batch');
+          toast.error('Failed to create the Batch');
 
           // Handle error if needed
         }
       } catch (error) {
-        console.error('Failed to create the lecturer:', error);
-        toast.error('Failed to create the lecturer');
+        console.error('Failed to create the Batch:', error);
+        toast.error('Failed to create the Batch');
 
         // Handle error if needed
       } finally {

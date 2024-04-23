@@ -97,7 +97,7 @@ const Lecturers = () => {
           <DataTable columns={columns} tableData={tableData} />
         ) : (
           <div className="flex min-h-[80vh] items-center justify-center text-4xl	font-bold	">
-            {!loading ? 'No Users Found' : ''}
+            {!loading ? 'No Lecturer Found' : ''}
           </div>
         )}
       </div>

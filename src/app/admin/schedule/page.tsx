@@ -125,7 +125,7 @@ const Schedule = () => {
           <DataTable columns={columns} tableData={schedules} />
         ) : (
           <div className="flex min-h-[80vh] items-center justify-center text-4xl	font-bold	">
-            {!loading ? 'No Users Found' : ''}
+            {!loading ? 'No Schedule Found' : ''}
           </div>
         )}
       </div>

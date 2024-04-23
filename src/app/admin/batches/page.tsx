@@ -68,12 +68,12 @@ const Batches = () => {
           const data = await response.json();
           setBatchData(data?.batchList);
         } else {
-          console.error('Failed to get the lecturers');
-          toast.error('Failed to get the lecturers');
+          console.error('Failed to get the batches');
+          toast.error('Failed to get the batches');
         }
       } catch (error) {
-        console.error('Failed to get the lecturers:', error);
-        toast.error('Failed to get the lecturers');
+        console.error('Failed to get the batches:', error);
+        toast.error('Failed to get the batches');
       } finally {
         setLoading(false);
       }
