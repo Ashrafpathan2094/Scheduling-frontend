@@ -163,7 +163,7 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
     if (courseId) {
       fetchBatches();
     }
-  }, [courseId, formik]);
+  }, [courseId]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -191,7 +191,7 @@ const AddSchedule = ({ setIsModelClose, setSchedulesData }) => {
     };
 
     fetchUsers();
-  }, [formik]);
+  }, []);
   console.log('formik.values', formik.values);
 
   const handleOkClick = () => {
