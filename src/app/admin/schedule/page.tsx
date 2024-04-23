@@ -6,30 +6,19 @@ import DataTable from 'components/dataTable/dataTable';
 import FullScreenLoader from 'components/fullscreenLoader';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const Schedule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [tableData, setTableData] = useState<any>({
-    courses: [
-      {
-        _id: '123',
-        lecturerName: 'ashraf',
-        courseName: 'test course',
-        batchName: 'batchName test',
-        date: '12-2-1',
-      },
-    ],
-    totalCount: 15,
-  });
+  const [schedules, setSchedulesData] = useState<any>([]);
 
   const columnHelper = createColumnHelper<any>();
   const [loading, setLoading] = useState(false);
 
   const columns: any = [
-    columnHelper.accessor('lecturerName', {
-      id: 'lecturerName',
+    columnHelper.accessor('instructorDetails', {
+      id: 'instructorDetails',
       header: () => (
         <p className="text-sm font-bold text-[#B1A2D0] dark:text-white">
           Lecturer Name
@@ -38,13 +27,13 @@ const Schedule = () => {
       cell: (info) => (
         <div className="flex items-center">
           <div className="mr-3 text-sm font-bold text-navy-700 dark:text-white">
-            {info.row.index + 1} . {info.getValue()}{' '}
+            {info.row.index + 1} . {info.row.original.instructorDetails[0].name}
           </div>
         </div>
       ),
     }),
-    columnHelper.accessor('courseName', {
-      id: 'courseName',
+    columnHelper.accessor('courseDetails', {
+      id: 'courseDetails',
       header: () => (
         <p className="text-sm font-bold text-[#B1A2D0] dark:text-white">
           Course Name
@@ -52,12 +41,12 @@ const Schedule = () => {
       ),
       cell: (info) => (
         <p className="text-sm font-bold text-navy-700 dark:text-white">
-          {info.getValue()}
+          {info.row.original?.courseDetails[0]?.name || ''}
         </p>
       ),
     }),
-    columnHelper.accessor('batchName', {
-      id: 'batchName',
+    columnHelper.accessor('batchDetails', {
+      id: 'batchDetails',
       header: () => (
         <p className="text-sm font-bold text-[#B1A2D0] dark:text-white">
           Batch Name
@@ -65,7 +54,7 @@ const Schedule = () => {
       ),
       cell: (info) => (
         <p className="text-sm font-bold text-navy-700 dark:text-white">
-          {info.getValue()}
+          {info.row.original.batchDetails[0].batchName}
         </p>
       ),
     }),
@@ -82,40 +71,31 @@ const Schedule = () => {
     }),
   ];
 
-  //   const fetchUsers = async () => {
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}scheduling`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log('🚀 ~ fetchSchedules ~ data:', data);
+          setSchedulesData(data);
+        } else {
+          console.error('Failed to get the schedules');
+          toast.error('Failed to get the schedules');
+        }
+      } catch (error) {
+        console.error('Failed to get the schedules:', error);
+        toast.error('Failed to get the schedules');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/forgot-password`,
-  //       {
-  //         method: 'POST',
-  //         body: JSON.stringify(data),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     )
-
-  //     if (response.ok) {
-  //       setSuccess(true)
-  //       setError('')
-  //     } else {
-  //       setError(
-  //         'There was a problem while attempting to send you a password reset email. Please try again.',
-  //       )
-  //     }
-  //   }, [])
-  //     try {
-  //       setLoading(true);
-  //       const userData = await getUsers(filter);
-  //       setTableData(userData?.data?.data);
-  //     } catch (error) {
-  //       console.log('error', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchUsers();
-  // }, []);
+    fetchSchedules();
+  }, []);
   return (
     <div className="relative">
       {loading && <FullScreenLoader />}
@@ -134,8 +114,8 @@ const Schedule = () => {
         </div>
       </div>
       <div>
-        {tableData?.courses && tableData?.courses.length > 0 ? (
-          <DataTable columns={columns} tableData={tableData?.courses} />
+        {schedules && schedules.length > 0 ? (
+          <DataTable columns={columns} tableData={schedules} />
         ) : (
           <div className="flex min-h-[80vh] items-center justify-center text-4xl	font-bold	">
             {!loading ? 'No Users Found' : ''}
