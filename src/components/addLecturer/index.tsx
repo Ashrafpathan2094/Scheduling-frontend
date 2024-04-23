@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
-const AddLecturer = ({ setIsModelClose }) => {
+const AddLecturer = ({ setIsModelClose, setTableData }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const validationSchema = Yup.object({
@@ -28,7 +28,7 @@ const AddLecturer = ({ setIsModelClose }) => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-job-application`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}lecturer`,
           {
             method: 'POST',
             headers: {
@@ -39,20 +39,19 @@ const AddLecturer = ({ setIsModelClose }) => {
         );
 
         if (response.ok) {
-          console.log('Job application submitted successfully!');
+          const newLecturer = await response.json();
+          setTableData((prevTableData) => [newLecturer, ...prevTableData]);
+          console.log('Lecturer created successfully!');
           toast.success('Lecturer Created');
+
           setIsModelClose(false);
         } else {
           console.error('Failed to create the lecturer');
           toast.error('Failed to create the lecturer');
-
-          // Handle error if needed
         }
       } catch (error) {
         console.error('Failed to create the lecturer:', error);
         toast.error('Failed to create the lecturer');
-
-        // Handle error if needed
       } finally {
         setIsLoading(false);
       }

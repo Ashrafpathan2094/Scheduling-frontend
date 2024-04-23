@@ -2,15 +2,13 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import AddLecturer from 'components/addLecturer';
 import DataTable from 'components/dataTable/dataTable';
+import FullScreenLoader from 'components/fullscreenLoader';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 const Lecturers = () => {
-  const [tableData, setTableData] = useState<any>({
-    lecturers: [{ name: 'ashraf', email: 'test@test.com' }],
-    totalCount: 15,
-  });
+  const [tableData, setTableData] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const columnHelper = createColumnHelper<any>();
@@ -47,44 +45,40 @@ const Lecturers = () => {
     }),
   ];
 
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}lecturer`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setTableData(data);
+        } else {
+          console.error('Failed to get the lecturers');
+          toast.error('Failed to get the lecturers');
+        }
+      } catch (error) {
+        console.error('Failed to get the lecturers:', error);
+        toast.error('Failed to get the lecturers');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/forgot-password`,
-  //       {
-  //         method: 'POST',
-  //         body: JSON.stringify(data),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     )
+    fetchUsers();
+  }, []); // Empty dependency array to execute only once on component mount
 
-  //     if (response.ok) {
-  //       setSuccess(true)
-  //       setError('')
-  //     } else {
-  //       setError(
-  //         'There was a problem while attempting to send you a password reset email. Please try again.',
-  //       )
-  //     }
-  //   }, [])
-  //     try {
-  //       setLoading(true);
-  //       const userData = await getUsers(filter);
-  //       setTableData(userData?.data?.data);
-  //     } catch (error) {
-  //       console.log('error', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchUsers();
-  // }, []);
   return (
     <div className="relative">
-      {isModalOpen && <AddLecturer setIsModelClose={setIsModalOpen} />}
+      {loading && <FullScreenLoader />}
+      {isModalOpen && (
+        <AddLecturer
+          setIsModelClose={setIsModalOpen}
+          setTableData={setTableData}
+        />
+      )}
       <div className="flex w-full p-4">
         <div className="flex w-1/2"></div>
         <div className="flex w-1/2 flex-row-reverse">
@@ -99,8 +93,8 @@ const Lecturers = () => {
         </div>
       </div>
       <div>
-        {tableData?.lecturers && tableData?.lecturers.length > 0 ? (
-          <DataTable columns={columns} tableData={tableData?.lecturers} />
+        {tableData && tableData.length > 0 ? (
+          <DataTable columns={columns} tableData={tableData} />
         ) : (
           <div className="flex min-h-[80vh] items-center justify-center text-4xl	font-bold	">
             {!loading ? 'No Users Found' : ''}
