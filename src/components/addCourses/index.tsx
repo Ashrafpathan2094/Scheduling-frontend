@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
-const AddCourses = ({ setIsModelClose }) => {
+const AddCourses = ({ setIsModelClose, setCoursesData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState('1');
 
@@ -22,14 +22,15 @@ const AddCourses = ({ setIsModelClose }) => {
       name: '',
       level: '1',
       description: '',
-      file: '',
+      image: '',
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
+        console.log('values', values);
         setIsLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-job-application`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}courses`,
           {
             method: 'POST',
             headers: {
@@ -40,20 +41,18 @@ const AddCourses = ({ setIsModelClose }) => {
         );
 
         if (response.ok) {
-          console.log('Job application submitted successfully!');
-          toast.success('Lecturer Created');
+          const newLecturer = await response.json();
+          setCoursesData((prevTableData) => [newLecturer, ...prevTableData]);
+          console.log('Course created successfully!');
+          toast.success('Course Created');
           setIsModelClose(false);
         } else {
-          console.error('Failed to create the lecturer');
-          toast.error('Failed to create the lecturer');
-
-          // Handle error if needed
+          console.error('Failed to create the Course');
+          toast.error('Failed to create the Course');
         }
       } catch (error) {
-        console.error('Failed to create the lecturer:', error);
-        toast.error('Failed to create the lecturer');
-
-        // Handle error if needed
+        console.error('Failed to create the Course:', error);
+        toast.error('Failed to create the Course');
       } finally {
         setIsLoading(false);
       }
@@ -69,12 +68,12 @@ const AddCourses = ({ setIsModelClose }) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        formik.setFieldValue('file', reader.result); // Set file field in formik values
+        formik.setFieldValue('image', reader.result); // Set file field in formik values
       };
       reader.readAsDataURL(file);
     } else {
       // If file is empty, clear file base64 and formik file field
-      formik.setFieldValue('file', '');
+      formik.setFieldValue('image', '');
     }
   };
 
@@ -155,14 +154,14 @@ const AddCourses = ({ setIsModelClose }) => {
                   </div>
                   <div className="my-3 flex w-[100%] flex-col items-start justify-center">
                     <label
-                      htmlFor="file"
+                      htmlFor="image"
                       className="mb-2 text-base font-medium text-[#192734]"
                     >
                       Upload Image
                     </label>
                     <input
                       type="file"
-                      id="file"
+                      id="image"
                       accept="image/png,image/jpeg"
                       onChange={handleFileChange}
                     />

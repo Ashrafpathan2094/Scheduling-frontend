@@ -19,15 +19,12 @@ export const findCurrentRoute = (
   }
 };
 
-export const getActiveRoute = (routes: IRoute[], pathname: string): string => {
+export const getActiveRoute = (routes: any, pathname: string): string => {
   const route = findCurrentRoute(routes, pathname);
   return route?.name || 'Main Dashboard';
 };
 
-export const getActiveNavbar = (
-  routes: IRoute[],
-  pathname: string,
-): boolean => {
+export const getActiveNavbar = (routes: any, pathname: string): boolean => {
   const route = findCurrentRoute(routes, pathname);
   return route?.secondary;
 };

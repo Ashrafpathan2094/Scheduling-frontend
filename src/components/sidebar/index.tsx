@@ -6,7 +6,7 @@ import Links from './components/Links';
 import SidebarCard from 'components/sidebar/components/SidebarCard';
 import { IRoute } from 'types/navigation';
 
-function SidebarHorizon(props: { routes: IRoute[]; [x: string]: any }) {
+function SidebarHorizon(props: { routes: any; [x: string]: any }) {
   const { routes, open, setOpen } = props;
   return (
     <div

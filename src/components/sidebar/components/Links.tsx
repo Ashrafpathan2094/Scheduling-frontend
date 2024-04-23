@@ -6,7 +6,7 @@ import NavLink from 'components/link/NavLink';
 import DashIcon from 'components/icons/DashIcon';
 // chakra imports
 
-export const SidebarLinks = (props: { routes: RoutesType[] }): JSX.Element => {
+export const SidebarLinks = (props: { routes: any }): JSX.Element => {
   // Chakra color mode
   const pathname = usePathname();
 

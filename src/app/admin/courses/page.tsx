@@ -4,24 +4,13 @@ import AddCourses from 'components/addCourses';
 import DataTable from 'components/dataTable/dataTable';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const Courses = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [tableData, setTableData] = useState<any>({
-    courses: [
-      {
-        _id: '123',
-        name: 'ashraf',
-        level: '1',
-        description: 'desciption',
-        image:
-          'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-      },
-    ],
-    totalCount: 15,
-  });
+  const [coursesData, setCoursesData] = useState<any>([]);
 
   const columnHelper = createColumnHelper<any>();
   const [loading, setLoading] = useState(false);
@@ -78,9 +67,9 @@ const Courses = () => {
       cell: (info) => (
         <p className="text-sm font-bold text-navy-700 dark:text-white">
           <Image
-            src={`data:image/jpeg;base64,${info.getValue()}`}
-            height={20}
-            width={20}
+            src={info.getValue()}
+            height={50}
+            width={50}
             alt="course image"
           />
         </p>
@@ -108,44 +97,39 @@ const Courses = () => {
     }),
   ];
 
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}courses`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log('🚀 ~ fetchCourses ~ data:', data);
+          setCoursesData(data);
+        } else {
+          console.error('Failed to get the lecturers');
+          toast.error('Failed to get the lecturers');
+        }
+      } catch (error) {
+        console.error('Failed to get the lecturers:', error);
+        toast.error('Failed to get the lecturers');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/forgot-password`,
-  //       {
-  //         method: 'POST',
-  //         body: JSON.stringify(data),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     )
-
-  //     if (response.ok) {
-  //       setSuccess(true)
-  //       setError('')
-  //     } else {
-  //       setError(
-  //         'There was a problem while attempting to send you a password reset email. Please try again.',
-  //       )
-  //     }
-  //   }, [])
-  //     try {
-  //       setLoading(true);
-  //       const userData = await getUsers(filter);
-  //       setTableData(userData?.data?.data);
-  //     } catch (error) {
-  //       console.log('error', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchUsers();
-  // }, []);
+    fetchCourses();
+  }, []);
   return (
     <div className="relative">
-      {isModalOpen && <AddCourses setIsModelClose={setIsModalOpen} />}
+      {isModalOpen && (
+        <AddCourses
+          setIsModelClose={setIsModalOpen}
+          setCoursesData={setCoursesData}
+        />
+      )}
       <div className="flex w-full p-4">
         <div className="flex w-1/2"></div>
         <div className="flex w-1/2 flex-row-reverse">
@@ -160,11 +144,11 @@ const Courses = () => {
         </div>
       </div>
       <div>
-        {tableData?.courses && tableData?.courses.length > 0 ? (
-          <DataTable columns={columns} tableData={tableData?.courses} />
+        {coursesData && coursesData.length > 0 ? (
+          <DataTable columns={columns} tableData={coursesData} />
         ) : (
           <div className="flex min-h-[80vh] items-center justify-center text-4xl	font-bold	">
-            {!loading ? 'No Users Found' : ''}
+            {!loading ? 'No Courses Found' : ''}
           </div>
         )}
       </div>
