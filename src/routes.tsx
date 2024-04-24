@@ -14,12 +14,12 @@ import {
 } from 'react-icons/md';
 
 const routes = [
-  {
-    name: 'Main Dashboard',
-    layout: '/admin',
-    sideBarVisible: true,
-    path: 'default',
-  },
+  // {
+  //   name: 'Main Dashboard',
+  //   layout: '/admin',
+  //   sideBarVisible: true,
+  //   path: 'default',
+  // },
   {
     name: 'Schedule',
     layout: '/admin',
