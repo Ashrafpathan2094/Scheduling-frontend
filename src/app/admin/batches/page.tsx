@@ -57,7 +57,6 @@ const Batches = () => {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}batches/findAll`,
           {
-            mode: 'no-cors',
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
