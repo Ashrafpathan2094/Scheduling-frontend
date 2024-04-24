@@ -58,10 +58,6 @@ const Batches = () => {
           `${process.env.NEXT_PUBLIC_BACKEND_URL}batches/findAll`,
           {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
             body: JSON.stringify({ courseId: id }),
           },
         );
