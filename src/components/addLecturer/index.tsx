@@ -30,6 +30,7 @@ const AddLecturer = ({ setIsModelClose, setTableData }) => {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}lecturer`,
           {
+            mode: 'no-cors',
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
