@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
+import axios from 'axios';
 
 const AddLecturer = ({ setIsModelClose, setTableData }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,20 +28,30 @@ const AddLecturer = ({ setIsModelClose, setTableData }) => {
     onSubmit: async (values, { resetForm }) => {
       try {
         setIsLoading(true);
-        const response = await fetch(
+        // const response = await fetch(
+        //   `${process.env.NEXT_PUBLIC_BACKEND_URL}lecturer`,
+        //   {
+        //     mode: 'no-cors',
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(values),
+        //   },
+        // );
+
+        const response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}lecturer`,
+          values,
           {
-            mode: 'no-cors',
-            method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(values),
           },
         );
-
-        if (response.ok) {
-          const newLecturer = await response.json();
+        console.log('🚀 ~ onSubmit: ~ response:', response);
+        if (response.status === 200 || response.status === 201) {
+          const newLecturer = await response.data;
           setTableData((prevTableData) => [newLecturer, ...prevTableData]);
           console.log('Lecturer created successfully!');
           toast.success('Lecturer Created');
