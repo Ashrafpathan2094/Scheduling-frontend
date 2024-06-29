@@ -68,7 +68,7 @@ const Courses = () => {
       cell: (info) => (
         <p className="text-sm font-bold text-navy-700 dark:text-white">
           <Image
-            src={info.getValue()}
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${info.getValue()}`}
             height={50}
             width={50}
             alt="course image"

@@ -27,23 +27,28 @@ const AddCourses = ({ setIsModelClose, setCoursesData }) => {
     validationSchema: validationSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
-        console.log('values', values);
         setIsLoading(true);
+
+        // Create FormData object
+        const formData = new FormData();
+        formData.append('name', values.name);
+        formData.append('level', values.level);
+        formData.append('description', values.description);
+        if (values.image) {
+          formData.append('image', values.image);
+        }
+
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}courses`,
           {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(values),
+            body: formData,
           },
         );
 
         if (response.ok) {
-          const newLecturer = await response.json();
-          setCoursesData((prevTableData) => [newLecturer, ...prevTableData]);
-          console.log('Course created successfully!');
+          const newCourse = await response.json();
+          setCoursesData((prevTableData) => [newCourse, ...prevTableData]);
           toast.success('Course Created');
           setIsModelClose(false);
         } else {
@@ -66,13 +71,8 @@ const AddCourses = ({ setIsModelClose, setCoursesData }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        formik.setFieldValue('image', reader.result); // Set file field in formik values
-      };
-      reader.readAsDataURL(file);
+      formik.setFieldValue('image', file);
     } else {
-      // If file is empty, clear file base64 and formik file field
       formik.setFieldValue('image', '');
     }
   };
@@ -82,7 +82,7 @@ const AddCourses = ({ setIsModelClose, setCoursesData }) => {
       className={`absolute top-0 z-[60] flex min-h-[100vh] w-[100%] items-center justify-center bg-[rgba(0,0,0,0.25)]`}
     >
       {isLoading && <FullScreenLoader />}
-      <div className="max-[580px]:min-w-[90%] min-w-[60%]  overflow-hidden rounded-[1.25rem] bg-[#fff] p-8">
+      <div className="max-[580px]:min-w-[90%] min-w-[60%] overflow-hidden rounded-[1.25rem] bg-[#fff] p-8">
         <div className="flex items-center justify-end">
           <button type="button" onClick={handleClose}>
             <Image
@@ -127,7 +127,10 @@ const AddCourses = ({ setIsModelClose, setCoursesData }) => {
                       className={`mt-2 w-full rounded-[0.5rem] border-[#8D8D8D] bg-[#F9FAFA] p-2 text-gray-700 transition-all duration-300 focus:border-[#000]`}
                       id="level"
                       value={selectedLevel}
-                      onChange={(e) => setSelectedLevel(e.target.value)}
+                      onChange={(e) => {
+                        formik.setFieldValue('level', e.target.value);
+                        setSelectedLevel(e.target.value);
+                      }}
                     >
                       <option value="1">1</option>
                       <option value="2">2</option>
